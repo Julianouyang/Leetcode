@@ -1,0 +1,5 @@
+*.dSYM
+.vscode
+*.xcodeproj
+.DS_Store
+builder
