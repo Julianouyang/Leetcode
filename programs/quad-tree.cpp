@@ -14,11 +14,11 @@ public:
     }
 
     void split() { // generate children
-        if (_curLevel > _targetLevel) return;
+        if (_curLevel >= _targetLevel) return;
         _child = make_shared<QuadTree>(_lat, _lon, _curLevel + 1);
-        float midLat = _lat < _minp.first + (_maxp.first - _minp.first) /2;
-        float midLon = _lon < _minp.second + (_maxp.second - _minp.second) / 2;
-        if (_curLevel == 0) {
+        float midLat = _minp.first + (_maxp.first - _minp.first) /2;
+        float midLon = _minp.second + (_maxp.second - _minp.second) / 2;
+        if (_curLevel == -1) {
             if (_lon >= _minp.second && _lon < midLon) { // left
                 _child->setMin(_minp.first, _minp.second);
                 _child->setMax(_maxp.first, midLon);
@@ -28,7 +28,7 @@ public:
                 _child->setMax(_maxp.first, _maxp.second);
                 _child->_val = 1;
             }
-        } else if (_curLevel == 1) {
+        } else if (_curLevel == 0) {
             if (_lat >= _minp.first && _lat < midLat) { // bottom
                 _child->setMin(_minp.first, _minp.second);
                 _child->setMax(midLat, _maxp.second);
@@ -43,6 +43,18 @@ public:
                 _child->setMin(_minp.first, _minp.second);
                 _child->setMax(midLat, midLon);
                 _child->_val = 3;
+            } else if (_lat >= _minp.first && _lat < midLat && _lon >= midLon && _lon < _maxp.second) { // right bottom
+                _child->setMin(_minp.first, midLon);
+                _child->setMax(midLat, _maxp.second);
+                _child->_val = 2;
+            } else if (_lat >= midLat && _lat < _maxp.first && _lon >= _minp.second && _lon < midLon) { // left upper
+                _child->setMin(midLat, _minp.second);
+                _child->setMax(_maxp.first, midLon);
+                _child->_val = 0;
+            } else { // right upper
+                _child->setMin(midLat, midLon);
+                _child->setMax(_maxp.first, _maxp.second);
+                _child->_val = 1;
             }
         }
         _child->setLevel(_targetLevel);
@@ -54,7 +66,7 @@ public:
     }
 
     void print() {
-        if (_curLevel > 0) cout << _val;
+        if (_curLevel >= 0) cout << _val;
         if (_child) _child->print();
     }
 
